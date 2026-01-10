@@ -621,7 +621,6 @@
                     <h2>Daftar Client</h2>
                     <div class="toolbar-actions">
                         <div class="input-group">
-                            <span class="search-icon">🔍</span>
                             <input type="text" id="searchInput" placeholder="Cari nama, domain, email...">
                         </div>
                         <button class="btn btn-primary" onclick="openModal()">
@@ -1217,6 +1216,17 @@
             document.getElementById('btnLater').addEventListener('click', () => {
                 document.getElementById('notificationModal').style.display = 'none';
             });
+
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(function (registration) {
+                        console.log('Service Worker Registered with scope:', registration.scope);
+                    })
+                    .catch(function (error) {
+                        console.error('Service Worker Registration Failed:', error);
+                    });
+            }
         });
     </script>
 </body>

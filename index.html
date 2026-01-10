@@ -1056,6 +1056,169 @@
             showToast('🔔 Notifikasi Test dikirim');
         }
     </script>
+
+    <style>
+        /* Notification Modal */
+        .notification-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .notification-content {
+            background: linear-gradient(145deg, #ffffff, #f0f4f8);
+            padding: 30px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .notification-icon img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .notification-content h3 {
+            margin: 0 0 10px;
+            color: #1e293b;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .notification-content p {
+            margin: 0 0 25px;
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .notification-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-allow {
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-allow:active {
+            transform: scale(0.98);
+        }
+
+        .btn-later {
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            padding: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .btn-later:hover {
+            color: #64748b;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes popIn {
+            to {
+                transform: scale(1);
+            }
+        }
+    </style>
+
+    <!-- Notification Permission Modal -->
+    <div id="notificationModal" class="notification-modal" style="display: none;">
+        <div class="notification-content">
+            <div class="notification-icon">
+                <img src="https://img.icons8.com/fluency/96/appointment-reminders.png" alt="Notification">
+            </div>
+            <h3>Aktifkan Notifikasi?</h3>
+            <p>Dapatkan pengingat hosting & domain tepat waktu langsung di HP Anda.</p>
+            <div class="notification-buttons">
+                <button id="btnAllow" class="btn-allow">Izinkan</button>
+                <button id="btnLater" class="btn-later">Nanti Saja</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Push.js Library -->
+    <script src="js/push.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if permission is NOT granted and NOT denied (default)
+            // Or just check if not granted to catch denied cases too if we want to re-prompt (but usually browser blocks)
+            // Strategy: If default (not yet prompt), show modal.
+
+            // Push.Permission.has() returns true if GRANTED.
+
+            if (!Push.Permission.has() && Push.Permission.get() === Push.Permission.DEFAULT) {
+                // Show modal after 2 seconds
+                setTimeout(() => {
+                    document.getElementById('notificationModal').style.display = 'flex';
+                }, 2000);
+            }
+
+            document.getElementById('btnAllow').addEventListener('click', () => {
+                Push.Permission.request(
+                    () => {
+                        // onGranted
+                        document.getElementById('notificationModal').style.display = 'none';
+                        Push.create("Izin Diterima! 🎉", {
+                            body: "Terima kasih! Anda akan menerima pengingat hosting.",
+                            icon: 'img/icon.png',
+                            timeout: 4000,
+                            onClick: function () {
+                                window.focus();
+                                this.close();
+                            }
+                        });
+                        showToast('🔔 Notifikasi diaktifkan!');
+                    },
+                    () => {
+                        // onDenied
+                        document.getElementById('notificationModal').style.display = 'none';
+                        showToast('⚠️ Notifikasi ditolak');
+                    }
+                );
+            });
+
+            document.getElementById('btnLater').addEventListener('click', () => {
+                document.getElementById('notificationModal').style.display = 'none';
+            });
+        });
+    </script>
 </body>
 
 </html>
